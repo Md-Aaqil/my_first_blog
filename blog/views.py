@@ -3,6 +3,7 @@ from django.utils import timezone
 from .models import post
 from .forms import PostForm
 from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
 def post_list(request):
     posts=post.objects.all()
     return render(request,'blog/post_list.html',{'posts':posts})
@@ -10,6 +11,7 @@ def post_list(request):
 def post_detail(request,pk):
      posts= get_object_or_404(post, pk=pk)
      return render(request, 'blog/post_detail.html', {'posts': posts})
+@login_required
 def post_new(request):
     if request.method=="POST":
         form=PostForm(request.POST)
@@ -21,6 +23,7 @@ def post_new(request):
     else:
         form =PostForm()
     return render(request,'blog/post_edit.html',{'form':form})
+@login_required
 def post_edit(request, pk):
     posts = get_object_or_404(post, pk=pk)
     if request.method == "POST":
@@ -36,11 +39,12 @@ def post_edit(request, pk):
 def post_draft_list(request):
     posts=post.objects.filter(published_date__isnull=True).order_by('created_date')
     return render(request,'blog/post_draft_list.html',{'posts':posts})
-
+@login_required
 def post_publish(request, pk):
     posts= get_object_or_404(post, pk=pk)
     posts.publish()
     return redirect('post_detail', pk=pk)
+@login_required
 def post_remove(request, pk):
     posts=get_object_or_404(post, pk=pk)
     posts.delete()
